@@ -39,7 +39,7 @@ Read each discovered skill and evaluate it holistically against this checklist:
 
 - [ ] Content overlap with other skills checked
 - [ ] Overlap with repository guidance checked (`README.md`, `.github/copilot/`, `AGENTS.md`, `CLAUDE.md`, `MEMORY.md`, or equivalent files if present)
-- [ ] Freshness of technical references verified (use WebSearch if tool names, CLI flags, APIs, or versions are present)
+- [ ] Freshness of technical references verified using available repository context and any web lookup capability available in the current client
 - [ ] Usage frequency or other usage signals considered
 
 Use these verdicts:
@@ -83,10 +83,10 @@ Return a summary table:
    - what existing skill or guidance covers the same need
    - any likely impact of removal or consolidation
 2. For **Improve**, propose concrete edits.
-3. For **Update**, identify what should be refreshed and cite the verified source when WebSearch was used.
+3. For **Update**, identify what should be refreshed and cite the verified source when external documentation was consulted.
 
 ## Important rules
 
 - Do not delete, merge, or rewrite skill files automatically unless the user explicitly asks for implementation changes.
-- If a skill references external tools or documentation that may have changed, verify them instead of assuming they are current.
+- If a skill references external tools or documentation that may have changed, verify them with the tools available in the current client instead of assuming they are current.
 - If there is only one skill, still evaluate it against overlap with repository guidance and against whether its scope is appropriately narrow and actionable.
