@@ -18,7 +18,7 @@ Scan skill definitions from the current working tree and explicitly report which
 | `.github/copilot/skills/*/SKILL.md` | Repository-local Copilot skills |
 | User-provided paths | Additional skill locations supplied by the user |
 
-If none of the default locations exist, say so clearly and stop.
+If none of the default locations exist, continue with any user-provided paths. Stop only when no skill files are found in either the default locations or the user-provided paths.
 
 ## Workflow
 
