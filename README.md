@@ -27,4 +27,4 @@ If you update the plugin locally, run `copilot plugin install .` again from the 
 
 ## Included skill
 
-- `skill-stocktake`: scans available skills in the current repository, common plugin layouts, or user-provided paths, and reviews them against a quality checklist adapted from the original `skill-stocktake` skill.
+- `skill-stocktake`: scans available skills in the current repository, common plugin layouts, or user-provided paths, and reviews them against a quality checklist. It is adapted for Copilot from the original [`skill-stocktake` skill](https://github.com/affaan-m/ECC/blob/main/skills/skill-stocktake/SKILL.md).
