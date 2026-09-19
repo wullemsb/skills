@@ -77,7 +77,12 @@ jq -s \
         )
       | reduce $new_skills[] as $skill
           (.;
-            .[$skill.path] = ((.[$skill.path] // {}) + $skill)
+            .[$skill.path] = (
+              reduce ($skill | keys_unsorted[]) as $key
+                ((.[$skill.path] // {});
+                  .[$key] = $skill[$key]
+                )
+            )
           )
       | [.[]] | sort_by(.path)
     )
