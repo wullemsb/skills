@@ -52,10 +52,15 @@ jq -s \
   | $existing
   | .evaluated_at = $evaluated_at
   | .skills = (
-      ($old_skills + $new_skills)
-      | reverse
-      | unique_by(.path)
-      | reverse
+      reduce ($old_skills + $new_skills)[] as $skill
+        ([];
+          (map(.path) | index($skill.path)) as $index
+          | if $index == null then
+              . + [$skill]
+            else
+              .[$index] = $skill
+            end
+        )
     )
   | if ($new | has("mode")) then .mode = $new.mode else . end
   | if ($new | has("scan_summary")) then .scan_summary = $new.scan_summary else . end

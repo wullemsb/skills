@@ -17,7 +17,7 @@ if [[ -z "$RESULTS_JSON" || ! -f "$RESULTS_JSON" ]]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-scan_json=$(bash "$SCRIPT_DIR/scan.sh" "$ROOT_DIR" "${USER_PATHS[@]}")
+scan_json=$("$SCRIPT_DIR/scan.sh" "$ROOT_DIR" "${USER_PATHS[@]}")
 
 jq \
   --slurpfile results "$RESULTS_JSON" \
