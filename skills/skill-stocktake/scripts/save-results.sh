@@ -19,7 +19,9 @@ if ! jq empty >/dev/null 2>&1 <<<"$input_json"; then
 fi
 
 evaluated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-tmp_file=$(mktemp "${RESULTS_JSON}.XXXXXX")
+results_dir=$(dirname "$RESULTS_JSON")
+mkdir -p "$results_dir"
+tmp_file=$(mktemp "$results_dir/.results.json.XXXXXX")
 trap 'rm -f "$tmp_file"' EXIT
 
 if [[ ! -f "$RESULTS_JSON" ]]; then

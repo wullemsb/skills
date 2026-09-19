@@ -26,7 +26,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 scan_json=$(bash "$SCRIPT_DIR/scan.sh" "$ROOT_DIR" "${USER_PATHS[@]}")
 
 jq \
-  --arg evaluated_at "$evaluated_at" \
   --slurpfile results "$RESULTS_JSON" \
   '
   ($results[0].skills // []) as $previous
@@ -35,7 +34,7 @@ jq \
       | ($previous | map(select(.path == $skill.path)) | first) as $existing
       | if $existing == null then
           $skill + { is_new: true }
-        elif $skill.mtime > $evaluated_at then
+        elif (($existing.mtime // "") != $skill.mtime) then
           $skill + { is_new: false }
         else
           empty
