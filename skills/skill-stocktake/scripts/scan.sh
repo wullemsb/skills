@@ -57,11 +57,11 @@ extract_field() {
 }
 
 file_mtime_utc() {
-  local file="$1"
-  local epoch
-  epoch=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file")
-  date -u -d "@$epoch" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null ||
-    date -u -r "$epoch" +%Y-%m-%dT%H:%M:%SZ
+  node -e '
+    const fs = require("fs");
+    const mtime = fs.statSync(process.argv[1]).mtime.toISOString();
+    process.stdout.write(mtime.replace(/\.\d{3}Z$/, "Z"));
+  ' "$1"
 }
 
 add_skill_records() {
