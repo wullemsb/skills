@@ -58,7 +58,7 @@ jq -s \
           | if $index == null then
               . + [$skill]
             else
-              .[$index] = $skill
+              .[$index] = (.[$index] + $skill)
             end
         )
     )

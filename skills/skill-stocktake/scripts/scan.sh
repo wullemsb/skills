@@ -162,12 +162,11 @@ for i in "${!USER_PATHS[@]}"; do
   user_err="$TMP_DIR/user-$i.err"
   resolved=$(resolve_path "${USER_PATHS[$i]}")
   scan_user_path "$resolved" "$user_find" "$user_err"
-  user_count=$(python - <<'PY' "$user_find"
-import pathlib, sys
-data = pathlib.Path(sys.argv[1]).read_bytes()
-print(0 if not data else data.count(b"\0"))
-PY
-)
+  user_count=$(node -e '
+    const fs = require("fs");
+    const data = fs.readFileSync(process.argv[1]);
+    process.stdout.write(String(data.length === 0 ? 0 : data.reduce((count, byte) => count + (byte === 0 ? 1 : 0), 0)));
+  ' "$user_find")
 
   jq -n \
     --arg input "${USER_PATHS[$i]}" \
