@@ -17,7 +17,7 @@ This repository is a GitHub Copilot Agent Plugins 1.0 plugin.
    copilot plugin list
    ```
 
-4. Start a new Copilot session and confirm the included skills are available:
+4. Start a new Copilot session and confirm the included skill is available:
 
    ```text
    /skills list
