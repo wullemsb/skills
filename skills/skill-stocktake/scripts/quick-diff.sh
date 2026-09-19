@@ -19,10 +19,14 @@ fi
 results_shape_check='
   type == "object"
   and ((.skills // []) | type == "array")
-  and all((.skills // [])[]?; (.path? | type == "string") and (.path | length > 0))
+  and all(
+    (.skills // [])[]?;
+    (.path? | type == "string") and (.path | length > 0)
+    and (.mtime? | type == "string") and (.mtime | length > 0)
+  )
 '
 if ! jq -e "$results_shape_check" >/dev/null 2>&1 "$RESULTS_JSON"; then
-  echo "Error: results file must be a JSON object with an optional skills array whose entries include a non-empty path" >&2
+  echo "Error: results file must be a JSON object with an optional skills array whose entries include non-empty path and mtime fields" >&2
   exit 1
 fi
 
