@@ -77,6 +77,8 @@ bash skills/skill-stocktake/scripts/save-results.sh "$RESULTS_JSON" <<< "$EVAL_R
 
 `EVAL_RESULTS` must be a JSON object whose `.skills` array contains the newly evaluated or updated skill entries for this run. Every `.skills[]` entry must include a unique, non-empty `path` and the latest `mtime`; include any refreshed evaluation fields such as `verdict` and `reason` as well. `save-results.sh` merges those entries into the existing results file by `path`, preserving previously saved fields for the same skill when the new entry omits them, so unchanged skills do not need to be repeated during a quick scan. Include refreshed top-level metadata such as `mode`, `scan_summary`, or `batch_progress` whenever those values changed, because the script only updates those fields when they are present in the new payload.
 
+`save-results.sh` does not automatically remove previously saved skills that are no longer discovered in the current scan scope. If deletions matter for your workflow, call that out in the report or rebuild the cache from a fresh full stocktake.
+
 ### Phase 2 — Quality Evaluation
 
 Read each discovered skill and evaluate it holistically against this checklist:
