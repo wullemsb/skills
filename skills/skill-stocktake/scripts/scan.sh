@@ -220,11 +220,11 @@ jq -n \
   --arg plugin_path "$ROOT_DIR/skills" \
   --arg multi_path "$ROOT_DIR/plugins" \
   --arg github_path "$ROOT_DIR/.github/copilot/skills" \
-  --argjson plugin_found "$([[ -d "$ROOT_DIR/skills" ]] && echo true || echo false)" \
+  --argjson plugin_found "$([[ "$plugin_count" -gt 0 ]] && echo true || echo false)" \
   --argjson plugin_count "$plugin_count" \
-  --argjson multi_found "$([[ -d "$ROOT_DIR/plugins" ]] && echo true || echo false)" \
+  --argjson multi_found "$([[ "$multi_count" -gt 0 ]] && echo true || echo false)" \
   --argjson multi_count "$multi_count" \
-  --argjson github_found "$([[ -d "$ROOT_DIR/.github/copilot/skills" ]] && echo true || echo false)" \
+  --argjson github_found "$([[ "$github_count" -gt 0 ]] && echo true || echo false)" \
   --argjson github_count "$github_count" \
   --argjson user_paths "$user_summary_json" \
   --argjson skills "$skills_json" \
