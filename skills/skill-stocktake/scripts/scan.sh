@@ -154,11 +154,7 @@ process_user_path() {
 
   resolved=$(resolve_path "$input_path")
   scan_user_path "$resolved" "$user_find" "$user_err"
-  user_count=$(node -e '
-    const fs = require("fs");
-    const data = fs.readFileSync(process.argv[1]);
-    process.stdout.write(String(data.length === 0 ? 0 : data.reduce((count, byte) => count + (byte === 0 ? 1 : 0), 0)));
-  ' "$user_find")
+  user_count=$(tr -cd '\0' < "$user_find" | wc -c | tr -d ' ')
 
   jq -n \
     --arg input "$input_path" \
