@@ -21,7 +21,15 @@ fi
 evaluated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 results_dir=$(dirname "$RESULTS_JSON")
 mkdir -p "$results_dir"
-tmp_file=$(mktemp "$results_dir/.results.json.XXXXXX")
+tmp_file=$(RESULTS_DIR="$results_dir" python - <<'PY'
+import os
+import tempfile
+
+fd, path = tempfile.mkstemp(prefix=".results.json.", dir=os.environ["RESULTS_DIR"])
+os.close(fd)
+print(path)
+PY
+)
 trap 'rm -f "$tmp_file"' EXIT
 
 if [[ ! -f "$RESULTS_JSON" ]]; then
