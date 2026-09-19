@@ -158,6 +158,7 @@ add_skill_records "$github_find" "github_copilot"
 
 user_summary_files=()
 for i in "${!USER_PATHS[@]}"; do
+  declare resolved user_count
   user_find="$TMP_DIR/user-$i.find"
   user_err="$TMP_DIR/user-$i.err"
   resolved=$(resolve_path "${USER_PATHS[$i]}")
