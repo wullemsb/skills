@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "skills",
+  "version": "0.1.0",
+  "description": "GitHub Copilot plugin containing reusable skills.",
+  "repository": "https://github.com/wullemsb/skills",
+  "license": "MIT",
+  "keywords": [
+    "github-copilot",
+    "plugin",
+    "skills"
+  ]
+}
