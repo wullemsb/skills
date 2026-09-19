@@ -17,8 +17,14 @@ if ! jq empty >/dev/null 2>&1 <<<"$input_json"; then
   echo "Error: stdin is not valid JSON" >&2
   exit 1
 fi
-if ! jq -e 'type == "object" and ((.skills // []) | type == "array")' >/dev/null 2>&1 <<<"$input_json"; then
-  echo "Error: stdin must be a JSON object with an optional skills array" >&2
+shape_check='
+  type == "object"
+  and ((.skills // []) | type == "array")
+  and all((.skills // [])[]?; (.path? | type == "string") and (.path | length > 0))
+'
+
+if ! jq -e "$shape_check" >/dev/null 2>&1 <<<"$input_json"; then
+  echo "Error: stdin must be a JSON object with an optional skills array whose entries include a non-empty path" >&2
   exit 1
 fi
 
@@ -46,8 +52,8 @@ if [[ ! -f "$RESULTS_JSON" ]]; then
   exit 0
 fi
 
-if ! jq -e 'type == "object" and ((.skills // []) | type == "array")' >/dev/null 2>&1 "$RESULTS_JSON"; then
-  echo "Error: existing results file must be a JSON object with an optional skills array" >&2
+if ! jq -e "$shape_check" >/dev/null 2>&1 "$RESULTS_JSON"; then
+  echo "Error: existing results file must be a JSON object with an optional skills array whose entries include a non-empty path" >&2
   exit 1
 fi
 
