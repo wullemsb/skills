@@ -71,19 +71,15 @@ jq -s \
   | $existing
   | .evaluated_at = $evaluated_at
   | .skills = (
-      reduce ($old_skills + $new_skills)[] as $skill
-        ([];
-          (map(.path) | index($skill.path)) as $index
-          | if $index == null then
-              . + [$skill]
-            else
-              .[$index] as $existing_skill
-              |
-              .[$index] = (
-                $existing_skill + $skill
-              )
-            end
+      reduce $old_skills[] as $skill
+        ({};
+          .[$skill.path] = $skill
         )
+      | reduce $new_skills[] as $skill
+          (.;
+            .[$skill.path] = ((.[$skill.path] // {}) + $skill)
+          )
+      | [.[]]
     )
   | if ($new | has("mode")) then .mode = $new.mode else . end
   | if ($new | has("scan_summary")) then .scan_summary = $new.scan_summary else . end

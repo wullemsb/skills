@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# scan.sh — enumerate Copilot skill files in the current working tree
+# scan.sh — enumerate Copilot skill files in a repository working tree
 # Usage: scan.sh [ROOT_DIR] [USER_PATH ...]
 # Output: JSON to stdout
+#
+# ROOT_DIR defaults to the current working directory.
+# Relative USER_PATH arguments are resolved from ROOT_DIR unless passed as
+# absolute paths.
 
 set -euo pipefail
 

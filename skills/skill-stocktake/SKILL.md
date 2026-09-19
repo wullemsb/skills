@@ -60,7 +60,7 @@ Use `/tmp/skill-stocktake-results.json` as the default cache file unless the use
    bash skills/skill-stocktake/scripts/scan.sh "$PWD"
    ```
 
-   Pass any user-provided paths as additional arguments to the script.
+   Pass any user-provided paths as additional arguments to the script. Relative paths are resolved from the scan root (`"$PWD"` in the example above) unless you pass absolute paths.
 2. Report the scan summary first, including which paths were found and how many skill files were discovered in each location.
 3. Build an inventory table:
 
