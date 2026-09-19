@@ -36,10 +36,11 @@ scan_json=$("$SCRIPT_DIR/scan.sh" "$ROOT_DIR" "${USER_PATHS[@]}")
 jq \
   --slurpfile results "$RESULTS_JSON" \
   '
-  ($results[0].skills // []) as $previous
+  (($results[0].skills // [])
+    | reduce .[] as $skill ({}; .[$skill.path] = $skill)) as $previous_by_path
   | [.skills[]
       | . as $skill
-      | ($previous | map(select(.path == $skill.path)) | first) as $existing
+      | ($previous_by_path[$skill.path] // null) as $existing
       | if $existing == null then
           $skill + { is_new: true }
         elif (($existing.mtime // "") != $skill.mtime) then
