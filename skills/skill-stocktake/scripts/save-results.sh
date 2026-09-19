@@ -70,13 +70,7 @@ jq -s \
               .[$index] as $existing_skill
               |
               .[$index] = (
-                $skill
-                + {
-                    name: ($skill.name // $existing_skill.name),
-                    description: ($skill.description // $existing_skill.description),
-                    mtime: ($skill.mtime // $existing_skill.mtime),
-                    source: ($skill.source // $existing_skill.source)
-                  }
+                $existing_skill + $skill
               )
             end
         )
