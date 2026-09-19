@@ -5,7 +5,7 @@ description: Use when auditing GitHub Copilot skills for quality. Scans availabl
 
 # skill-stocktake
 
-Audit the available GitHub Copilot skills and produce a decision-ready stocktake.
+Audit the available GitHub Copilot skills and produce a decision-ready stocktake. Use the bundled helper scripts in `skills/skill-stocktake/scripts/` to inventory skills, detect changes, and save refreshed results.
 
 ## Scope
 
@@ -22,9 +22,45 @@ If none of the default locations exist, continue with any user-provided paths. S
 
 ## Workflow
 
+### Helper scripts
+
+When this skill is available from the plugin source tree, the helper scripts live at:
+
+- `skills/skill-stocktake/scripts/scan.sh`
+- `skills/skill-stocktake/scripts/quick-diff.sh`
+- `skills/skill-stocktake/scripts/save-results.sh`
+
+Use `/tmp/skill-stocktake-results.json` as the default cache file unless the user gives you a different results path. Treat that chosen path as `RESULTS_JSON` in the commands below.
+
+### Modes
+
+| Mode | Trigger | Purpose |
+|------|---------|---------|
+| Quick Scan | A prior results file exists | Re-evaluate only new or changed skills |
+| Full Stocktake | No results file exists, or the user asks for a full pass | Rebuild the complete inventory and review all discovered skills |
+
 ### Phase 1 — Inventory
 
-1. Discover all `SKILL.md` files in the supported locations.
+#### Quick Scan
+
+1. If `RESULTS_JSON` exists, run:
+
+   ```bash
+   bash skills/skill-stocktake/scripts/quick-diff.sh "$RESULTS_JSON" "$PWD"
+   ```
+
+2. If the output is `[]`, report that no discovered skills changed since the previous run and stop unless the user asked for a full stocktake.
+3. If the output is not empty, re-evaluate only the returned skills and carry forward unchanged results from the existing results file.
+
+#### Full Stocktake
+
+1. Discover all `SKILL.md` files in the supported locations by running:
+
+   ```bash
+   bash skills/skill-stocktake/scripts/scan.sh "$PWD"
+   ```
+
+   Pass any user-provided paths as additional arguments to the script. Relative paths are resolved from the scan root (`"$PWD"` in the example above) unless you pass absolute paths.
 2. Report the scan summary first, including which paths were found and how many skill files were discovered in each location.
 3. Build an inventory table:
 
@@ -32,6 +68,14 @@ If none of the default locations exist, continue with any user-provided paths. S
 |-------|------|---------------|-------------|
 
 For **usage signals**, use repository evidence such as references in documentation, examples, tests, settings, or user-provided context. If no reliable signal exists, say `Unknown` rather than guessing.
+
+After completing either mode, save the refreshed results with:
+
+```bash
+bash skills/skill-stocktake/scripts/save-results.sh "$RESULTS_JSON" <<< "$EVAL_RESULTS"
+```
+
+`EVAL_RESULTS` must be a JSON object whose `.skills` array contains the newly evaluated or updated skill entries for this run. Every `.skills[]` entry must include a unique, non-empty `path`. `save-results.sh` merges those entries into the existing results file by `path`, preserving previously saved fields for the same skill when the new entry omits them, so unchanged skills do not need to be repeated during a quick scan. Include refreshed top-level metadata such as `mode`, `scan_summary`, or `batch_progress` whenever those values changed, because the script only updates those fields when they are present in the new payload.
 
 ### Phase 2 — Quality Evaluation
 
@@ -90,3 +134,25 @@ Return a summary table:
 - Do not delete, merge, or rewrite skill files automatically unless the user explicitly asks for implementation changes.
 - If a skill references external tools or documentation that may have changed, verify them with the tools available in the current client instead of assuming they are current.
 - If there is only one skill, still evaluate it against overlap with repository guidance and against whether its scope is appropriately narrow and actionable.
+
+## Results file shape
+
+The saved results file should follow this structure:
+
+```json
+{
+  "evaluated_at": "2026-09-19T15:00:00Z",
+  "mode": "full",
+  "scan_summary": {},
+  "skills": [
+    {
+      "path": "/absolute/path/to/skills/example/SKILL.md",
+      "name": "example",
+      "description": "Example skill",
+      "mtime": "2026-09-19T14:55:00Z",
+      "verdict": "Keep",
+      "reason": "Distinct, current, and actionable."
+    }
+  ]
+}
+```
