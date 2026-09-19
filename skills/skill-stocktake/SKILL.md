@@ -30,7 +30,7 @@ When this skill is available from the plugin source tree, the helper scripts liv
 - `skills/skill-stocktake/scripts/quick-diff.sh`
 - `skills/skill-stocktake/scripts/save-results.sh`
 
-Use `/tmp/skill-stocktake-results.json` as the default cache file unless the user gives you a different results path.
+Use `/tmp/skill-stocktake-results.json` as the default cache file unless the user gives you a different results path. Treat that chosen path as `RESULTS_JSON` in the commands below.
 
 ### Modes
 
@@ -43,10 +43,10 @@ Use `/tmp/skill-stocktake-results.json` as the default cache file unless the use
 
 #### Quick Scan
 
-1. If `/tmp/skill-stocktake-results.json` exists, run:
+1. If `RESULTS_JSON` exists, run:
 
    ```bash
-   bash skills/skill-stocktake/scripts/quick-diff.sh /tmp/skill-stocktake-results.json "$PWD"
+   bash skills/skill-stocktake/scripts/quick-diff.sh "$RESULTS_JSON" "$PWD"
    ```
 
 2. If the output is `[]`, report that no discovered skills changed since the previous run and stop unless the user asked for a full stocktake.
@@ -72,7 +72,7 @@ For **usage signals**, use repository evidence such as references in documentati
 After completing either mode, save the refreshed results with:
 
 ```bash
-bash skills/skill-stocktake/scripts/save-results.sh /tmp/skill-stocktake-results.json <<< "$EVAL_RESULTS"
+bash skills/skill-stocktake/scripts/save-results.sh "$RESULTS_JSON" <<< "$EVAL_RESULTS"
 ```
 
 `EVAL_RESULTS` must be a JSON object whose `.skills` array contains the newly evaluated or updated skill entries for this run. Every `.skills[]` entry must include a unique, non-empty `path`. `save-results.sh` merges those entries into the existing results file by `path`, preserving previously saved fields for the same skill when the new entry omits them, so unchanged skills do not need to be repeated during a quick scan. Include refreshed top-level metadata such as `mode`, `scan_summary`, or `batch_progress` whenever those values changed, because the script only updates those fields when they are present in the new payload.

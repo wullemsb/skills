@@ -40,21 +40,25 @@ os.close(fd)
 print(path)
 PY
 )
-trap 'rm -f "$tmp_file"' EXIT
+base_file=$(RESULTS_DIR="$results_dir" python - <<'PY'
+import os
+import tempfile
 
-if [[ ! -f "$RESULTS_JSON" ]]; then
-  jq --arg evaluated_at "$evaluated_at" \
-    '
-    .evaluated_at = $evaluated_at
-    | .skills = (.skills // [])
-    ' <<<"$input_json" > "$tmp_file"
-  mv "$tmp_file" "$RESULTS_JSON"
-  exit 0
-fi
+fd, path = tempfile.mkstemp(prefix=".results-base.", dir=os.environ["RESULTS_DIR"])
+os.close(fd)
+print(path)
+PY
+)
+trap 'rm -f "$tmp_file" "$base_file"' EXIT
 
-if ! jq -e "$shape_check" >/dev/null 2>&1 "$RESULTS_JSON"; then
-  echo "Error: existing results file must be a JSON object with an optional skills array whose entries include a non-empty path" >&2
-  exit 1
+if [[ -f "$RESULTS_JSON" ]]; then
+  if ! jq -e "$shape_check" >/dev/null 2>&1 "$RESULTS_JSON"; then
+    echo "Error: existing results file must be a JSON object with an optional skills array whose entries include a non-empty path" >&2
+    exit 1
+  fi
+  cp "$RESULTS_JSON" "$base_file"
+else
+  printf '%s\n' '{}' > "$base_file"
 fi
 
 jq -s \
@@ -84,6 +88,6 @@ jq -s \
   | if ($new | has("mode")) then .mode = $new.mode else . end
   | if ($new | has("scan_summary")) then .scan_summary = $new.scan_summary else . end
   | if ($new | has("batch_progress")) then .batch_progress = $new.batch_progress else . end
-  ' "$RESULTS_JSON" <(printf '%s' "$input_json") > "$tmp_file"
+  ' "$base_file" <(printf '%s' "$input_json") > "$tmp_file"
 
 mv "$tmp_file" "$RESULTS_JSON"

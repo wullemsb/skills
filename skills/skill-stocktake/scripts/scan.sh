@@ -111,7 +111,7 @@ resolve_path() {
   if [[ "$input" = /* ]]; then
     printf '%s\n' "$input"
   else
-    printf '%s\n' "$PWD/$input"
+    printf '%s\n' "$ROOT_DIR/$input"
   fi
 }
 
