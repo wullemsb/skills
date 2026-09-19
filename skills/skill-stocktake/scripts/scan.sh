@@ -90,7 +90,7 @@ add_skill_records() {
 }
 
 scan_pattern() {
-  local base_dir="$1" path_regex="$2" find_file="$3" find_err="$4"
+  local base_dir="$1" min_depth="$2" max_depth="$3" find_file="$4" find_err="$5"
   : >"$find_file"
   : >"$find_err"
 
@@ -98,7 +98,7 @@ scan_pattern() {
     return 0
   fi
 
-  if ! find -L "$base_dir" -type f -name "SKILL.md" -regextype posix-extended -regex "$path_regex" -print0 >"$find_file" 2>"$find_err"; then
+  if ! find -L "$base_dir" -mindepth "$min_depth" -maxdepth "$max_depth" -type f -name "SKILL.md" -print0 >"$find_file" 2>"$find_err"; then
     echo "Warning: find encountered errors while scanning $base_dir:" >&2
     cat "$find_err" >&2
   fi
@@ -148,9 +148,9 @@ multi_err="$TMP_DIR/multi.err"
 github_find="$TMP_DIR/github.find"
 github_err="$TMP_DIR/github.err"
 
-scan_pattern "$ROOT_DIR/skills" ".*/skills/[^/]+/SKILL\\.md" "$plugin_find" "$plugin_err"
-scan_pattern "$ROOT_DIR/plugins" ".*/plugins/[^/]+/skills/[^/]+/SKILL\\.md" "$multi_find" "$multi_err"
-scan_pattern "$ROOT_DIR/.github/copilot/skills" ".*/\\.github/copilot/skills/[^/]+/SKILL\\.md" "$github_find" "$github_err"
+scan_pattern "$ROOT_DIR/skills" 2 2 "$plugin_find" "$plugin_err"
+scan_pattern "$ROOT_DIR/plugins" 4 4 "$multi_find" "$multi_err"
+scan_pattern "$ROOT_DIR/.github/copilot/skills" 2 2 "$github_find" "$github_err"
 
 add_skill_records "$plugin_find" "plugin_root"
 add_skill_records "$multi_find" "multi_plugin"

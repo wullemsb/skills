@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# quick-diff.sh — compare skill mtimes against results.json evaluated_at
+# quick-diff.sh — compare discovered skills against prior recorded mtimes
 # Usage: quick-diff.sh RESULTS_JSON [ROOT_DIR] [USER_PATH ...]
 # Output: JSON array of changed/new skill entries to stdout
 
@@ -13,12 +13,6 @@ USER_PATHS=("$@")
 
 if [[ -z "$RESULTS_JSON" || ! -f "$RESULTS_JSON" ]]; then
   echo "Error: RESULTS_JSON not found: ${RESULTS_JSON:-<empty>}" >&2
-  exit 1
-fi
-
-evaluated_at=$(jq -r '.evaluated_at // empty' "$RESULTS_JSON")
-if [[ ! "$evaluated_at" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then
-  echo "Error: invalid or missing evaluated_at in $RESULTS_JSON: ${evaluated_at:-<empty>}" >&2
   exit 1
 fi
 
