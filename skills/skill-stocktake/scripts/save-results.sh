@@ -19,18 +19,18 @@ if ! jq empty >/dev/null 2>&1 <<<"$input_json"; then
 fi
 
 evaluated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+tmp_file=$(mktemp "${RESULTS_JSON}.XXXXXX")
+trap 'rm -f "$tmp_file"' EXIT
 
 if [[ ! -f "$RESULTS_JSON" ]]; then
   jq --arg evaluated_at "$evaluated_at" \
     '
     .evaluated_at = $evaluated_at
     | .skills = (.skills // [])
-    ' <<<"$input_json" > "$RESULTS_JSON"
+    ' <<<"$input_json" > "$tmp_file"
+  mv "$tmp_file" "$RESULTS_JSON"
   exit 0
 fi
-
-tmp_file=$(mktemp "${RESULTS_JSON}.XXXXXX")
-trap 'rm -f "$tmp_file"' EXIT
 
 jq -s \
   --arg evaluated_at "$evaluated_at" \

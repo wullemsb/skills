@@ -56,6 +56,14 @@ extract_field() {
   ' "$file"
 }
 
+file_mtime_utc() {
+  local file="$1"
+  local epoch
+  epoch=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file")
+  date -u -d "@$epoch" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null ||
+    date -u -r "$epoch" +%Y-%m-%dT%H:%M:%SZ
+}
+
 add_skill_records() {
   local find_file="$1" source="$2"
   while IFS= read -r -d '' file; do
@@ -67,7 +75,7 @@ add_skill_records() {
     local name desc mtime
     name=$(extract_field "$file" "name")
     desc=$(extract_field "$file" "description")
-    mtime=$(date -u -r "$file" +%Y-%m-%dT%H:%M:%SZ)
+    mtime=$(file_mtime_utc "$file")
 
     jq -n \
       --arg path "$file" \

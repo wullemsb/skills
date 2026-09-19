@@ -75,6 +75,8 @@ After completing either mode, save the refreshed results with:
 bash skills/skill-stocktake/scripts/save-results.sh /tmp/skill-stocktake-results.json <<< "$EVAL_RESULTS"
 ```
 
+`EVAL_RESULTS` must be a JSON object whose `.skills` array contains the newly evaluated or updated skill entries for this run. `save-results.sh` merges those entries into the existing results file by `path`, so unchanged skills do not need to be repeated during a quick scan.
+
 ### Phase 2 — Quality Evaluation
 
 Read each discovered skill and evaluate it holistically against this checklist:
