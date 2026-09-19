@@ -31,15 +31,7 @@ fi
 evaluated_at=$(node -e 'process.stdout.write(new Date().toISOString().replace(/\.\d{3}Z$/, "Z"))')
 results_dir=$(dirname "$RESULTS_JSON")
 mkdir -p "$results_dir"
-tmp_file=$(RESULTS_DIR="$results_dir" python - <<'PY'
-import os
-import tempfile
-
-fd, path = tempfile.mkstemp(prefix=".results.json.", dir=os.environ["RESULTS_DIR"])
-os.close(fd)
-print(path)
-PY
-)
+tmp_file=$(mktemp "$results_dir/.results.json.XXXXXX")
 base_file=$(RESULTS_DIR="$results_dir" python - <<'PY'
 import os
 import tempfile
