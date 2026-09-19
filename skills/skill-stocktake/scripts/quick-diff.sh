@@ -16,6 +16,16 @@ if [[ -z "$RESULTS_JSON" || ! -f "$RESULTS_JSON" ]]; then
   exit 1
 fi
 
+results_shape_check='
+  type == "object"
+  and ((.skills // []) | type == "array")
+  and all((.skills // [])[]?; (.path? | type == "string") and (.path | length > 0))
+'
+if ! jq -e "$results_shape_check" >/dev/null 2>&1 "$RESULTS_JSON"; then
+  echo "Error: results file must be a JSON object with an optional skills array whose entries include a non-empty path" >&2
+  exit 1
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 scan_json=$("$SCRIPT_DIR/scan.sh" "$ROOT_DIR" "${USER_PATHS[@]}")
 
