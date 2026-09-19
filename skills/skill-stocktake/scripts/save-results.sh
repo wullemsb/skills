@@ -79,7 +79,7 @@ jq -s \
           (.;
             .[$skill.path] = ((.[$skill.path] // {}) + $skill)
           )
-      | [.[]]
+      | [.[]] | sort_by(.path)
     )
   | if ($new | has("mode")) then .mode = $new.mode else . end
   | if ($new | has("scan_summary")) then .scan_summary = $new.scan_summary else . end

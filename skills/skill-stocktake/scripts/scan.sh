@@ -102,7 +102,7 @@ scan_pattern() {
     return 0
   fi
 
-  if ! find -L "$base_dir" -mindepth "$min_depth" -maxdepth "$max_depth" -type f -name "SKILL.md" -print0 >"$find_file" 2>"$find_err"; then
+  if ! find "$base_dir" -mindepth "$min_depth" -maxdepth "$max_depth" -type f -name "SKILL.md" -print0 >"$find_file" 2>"$find_err"; then
     echo "Warning: find encountered errors while scanning $base_dir:" >&2
     cat "$find_err" >&2
   fi
@@ -135,7 +135,7 @@ scan_user_path() {
   fi
 
   if [[ -d "$resolved" ]]; then
-    if ! find -L "$resolved" -type f -name "SKILL.md" -print0 >"$find_file" 2>"$find_err"; then
+    if ! find "$resolved" -type f -name "SKILL.md" -print0 >"$find_file" 2>"$find_err"; then
       echo "Warning: find encountered errors while scanning $resolved:" >&2
       cat "$find_err" >&2
     fi
