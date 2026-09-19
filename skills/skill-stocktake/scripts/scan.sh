@@ -125,13 +125,47 @@ scan_user_path() {
     return 0
   fi
 
+  if [[ -f "$resolved" ]]; then
+    echo "Warning: user-provided file is not named SKILL.md and will be skipped: $resolved" >&2
+    return 0
+  fi
+
   if [[ -d "$resolved" ]]; then
     if ! find -L "$resolved" -type f -name "SKILL.md" -print0 >"$find_file" 2>"$find_err"; then
       echo "Warning: find encountered errors while scanning $resolved:" >&2
       cat "$find_err" >&2
     fi
     sort_nul_file "$find_file"
+    return 0
   fi
+
+  echo "Warning: user-provided path not found or not scannable: $resolved" >&2
+}
+
+process_user_path() {
+  local index="$1" input_path="$2"
+  local user_find="$TMP_DIR/user-$index.find"
+  local user_err="$TMP_DIR/user-$index.err"
+  local resolved user_count
+
+  resolved=$(resolve_path "$input_path")
+  scan_user_path "$resolved" "$user_find" "$user_err"
+  user_count=$(node -e '
+    const fs = require("fs");
+    const data = fs.readFileSync(process.argv[1]);
+    process.stdout.write(String(data.length === 0 ? 0 : data.reduce((count, byte) => count + (byte === 0 ? 1 : 0), 0)));
+  ' "$user_find")
+
+  jq -n \
+    --arg input "$input_path" \
+    --arg resolved_path "$resolved" \
+    --argjson found "$([[ $user_count -gt 0 ]] && echo true || echo false)" \
+    --argjson count "$user_count" \
+    '{input:$input,resolved_path:$resolved_path,found:$found,count:$count}' \
+    > "$TMP_DIR/user-summary-$index.json"
+  user_summary_files+=("$TMP_DIR/user-summary-$index.json")
+
+  add_skill_records "$user_find" "user_provided"
 }
 
 TMP_DIR=$(mktemp -d)
@@ -158,27 +192,7 @@ add_skill_records "$github_find" "github_copilot"
 
 user_summary_files=()
 for i in "${!USER_PATHS[@]}"; do
-  declare resolved user_count
-  user_find="$TMP_DIR/user-$i.find"
-  user_err="$TMP_DIR/user-$i.err"
-  resolved=$(resolve_path "${USER_PATHS[$i]}")
-  scan_user_path "$resolved" "$user_find" "$user_err"
-  user_count=$(node -e '
-    const fs = require("fs");
-    const data = fs.readFileSync(process.argv[1]);
-    process.stdout.write(String(data.length === 0 ? 0 : data.reduce((count, byte) => count + (byte === 0 ? 1 : 0), 0)));
-  ' "$user_find")
-
-  jq -n \
-    --arg input "${USER_PATHS[$i]}" \
-    --arg resolved_path "$resolved" \
-    --argjson found "$([[ $user_count -gt 0 ]] && echo true || echo false)" \
-    --argjson count "$user_count" \
-    '{input:$input,resolved_path:$resolved_path,found:$found,count:$count}' \
-    > "$TMP_DIR/user-summary-$i.json"
-  user_summary_files+=("$TMP_DIR/user-summary-$i.json")
-
-  add_skill_records "$user_find" "user_provided"
+  process_user_path "$i" "${USER_PATHS[$i]}"
 done
 
 if compgen -G "$TMP_DIR/skill-*.json" > /dev/null; then

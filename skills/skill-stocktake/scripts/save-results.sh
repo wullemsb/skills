@@ -28,7 +28,7 @@ if ! jq -e "$shape_check" >/dev/null 2>&1 <<<"$input_json"; then
   exit 1
 fi
 
-evaluated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+evaluated_at=$(node -e 'process.stdout.write(new Date().toISOString().replace(/\.\d{3}Z$/, "Z"))')
 results_dir=$(dirname "$RESULTS_JSON")
 mkdir -p "$results_dir"
 tmp_file=$(RESULTS_DIR="$results_dir" python - <<'PY'
